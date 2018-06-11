@@ -1,11 +1,11 @@
 {
-  "name": "solidity-node-docker-starter",
-  "description": "Starter project for developing solidity smart contracts with NodeJs as backend server",
-  "version": "0.0.1",
-  "repository": "git@github.com:NodeFactoryIo/solidity-node-docker-starter.git",
+  "name": "eatmybet",
+  "description": "Backend and contracts for EatMyBet dApp",
+  "version": "1.0.0",
+  "repository": "https://github.com/NodeFactoryIo/eatmybet",
   "contributors": [
-    "Marin Petrunić <marin@nodefactory.io>",
-    "Belma gutlić <belma@nodefactory.io"
+    "Belma gutlić <belma@nodefactory.io",
+    "Marin Petrunić <marin@nodefactory.io>"
   ],
   "license": "MIT",
   "scripts": {
