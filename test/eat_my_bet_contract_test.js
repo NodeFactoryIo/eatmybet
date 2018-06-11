@@ -31,4 +31,27 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   });
 
+  it('should obtain total match count', function() {
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.getMatchCount();
+        }
+      )
+      .then(
+        function(result) {
+          return assert.equal(result.toNumber(), 1);
+        }
+      )
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+
+  });
+
+
 });

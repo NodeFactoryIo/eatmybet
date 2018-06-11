@@ -40,5 +40,9 @@ contract EatMyBet is Ownable {
         );
     }
 
+    function getMatchCount() public view returns(uint) {
+        return matches.length;
+    }
+
 }
 
