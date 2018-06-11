@@ -10,7 +10,12 @@ contract('eat_my_bet_contract_test', function(accounts) {
       .then(
         function(_contract) {
           contract = _contract;
-          return contract.storeMatch('CRO', 'NIG', new Date().getTime() / 1000);
+          return contract.storeMatch(
+            'CRO',
+            'NIG',
+            11232,
+            new Date().getTime() / 1000
+          );
         }
       )
       .then(
@@ -20,7 +25,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
       ).then(
         function(result) {
           // result should have 3 properties
-          return assert.equal(result.length, 3);
+          return assert.equal(result.length, 4);
         }
       ).catch(
         function(error) {
@@ -48,7 +53,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
           return contract.matches.call(0);
         }
       ).then(function(result) {
-        assert.notEqual(result[2].toNumber(), orgStartTime);
+        assert.notEqual(result[0].toNumber(), orgStartTime);
       })
       .catch(
         function(error) {
@@ -86,7 +91,12 @@ contract('eat_my_bet_contract_test', function(accounts) {
       .then(
         function(_contract) {
           contract = _contract;
-          return contract.storeMatch('USA', 'RUS', new Date().getTime() / 1000);
+          return contract.storeMatch(
+            'USA',
+            'RUS',
+            123314,
+            new Date().getTime() / 1000
+          );
         }
       )
       .then(

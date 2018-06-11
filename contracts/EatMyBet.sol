@@ -14,11 +14,13 @@ contract EatMyBet is Ownable {
 
     struct Match {
 
+        uint startTime;
+
+        uint fifaGameId;
+
         string homeTeam;
 
         string awayTeam;
-
-        uint startTime;
 
     }
 
@@ -55,14 +57,16 @@ contract EatMyBet is Ownable {
     function storeMatch(
         string _homeTeam,
         string _awayTeam,
+        uint _fifaGameId,
         uint _startTime
     ) public payable onlyOwner {
         matches.push(
             Match(
                 {
+                    startTime : _startTime,
+                    fifaGameId : _fifaGameId,
                     homeTeam : _homeTeam,
-                    awayTeam : _awayTeam,
-                    startTime : _startTime
+                    awayTeam : _awayTeam
                 }
             )
         );
