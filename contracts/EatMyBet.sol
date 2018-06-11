@@ -10,6 +10,8 @@ contract EatMyBet is Ownable {
 
     uint public constant MIN_POOL_SIZE = 0.01 ether;
 
+    uint public constant RESULT_DELAY = 3 hours;
+
     struct Match {
 
         string homeTeam;
