@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Tag docker image as latest
           command: |
-            docker tag nodefactory/solidity-node-docker-starter:${CIRCLE_SHA1} nodefactory/solidity-node-docker-starter:latest
+            docker tag nodefactory/eatmybet:${CIRCLE_SHA1} nodefactory/eatmybet:latest
       - run:
           name: Run backend tests
           command: docker-compose run --no-deps --rm backend npm run test
@@ -34,7 +34,7 @@ jobs:
       - run:
           name: Save docker layers cache
           command: |
-            docker save -o ~/docker-layers.tar nodefactory/solidity-node-docker-starter:${CIRCLE_SHA1} trufflesuite/ganache-cli:v6.1.0 node:carbon-alpine
+            docker save -o ~/docker-layers.tar nodefactory/eatmybet:${CIRCLE_SHA1} trufflesuite/ganache-cli:v6.1.0 node:carbon-alpine
       - save_cache:
           key: v1-docker-{{ .Branch }}-{{ epoch }}
           paths:
