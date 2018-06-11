@@ -46,6 +46,12 @@ contract EatMyBet is Ownable {
 
     BetPool[] public betPools;
 
+    modifier onlyBetOwner(uint _betPoolId) {
+        require(betPools.length > _betPoolId);
+        require(betPools[_betPoolId].owner == msg.sender);
+        _;
+    }
+
     function storeMatch(
         string _homeTeam,
         string _awayTeam,
@@ -72,18 +78,23 @@ contract EatMyBet is Ownable {
         return matches.length;
     }
 
+    function getBetPoolCount() public view returns (uint) {
+        return betPools.length;
+    }
+
     function makeBet(uint _matchId, uint8 _bet, uint16 _coef) public payable {
         require(msg.value >= MIN_POOL_SIZE);
         require(_matchId < matches.length);
         require(_bet <= 2);
         require(_coef >= 100);
-        BetPool memory betPool;
-        betPool.bet = _bet;
-        betPool.coef = _coef;
-        betPool.result = 3;
-        betPool.matchId = _matchId;
-        betPool.poolSize = msg.value;
+        address[] memory eaters;
+        BetPool memory betPool = BetPool(_bet, 3, _coef, _matchId, msg.value, msg.sender, eaters);
         betPools.push(betPool);
+    }
+
+    function cancelBet(uint _betPoolId) public payable onlyBetOwner(_betPoolId) {
+        require(betPools[_betPoolId].eaters.length == 0);
+        delete betPools[_betPoolId];
     }
 
 }

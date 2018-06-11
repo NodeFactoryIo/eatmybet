@@ -122,4 +122,48 @@ contract('eat_my_bet_contract_test', function(accounts) {
       );
   });
 
+  it('should delete bet', function() {
+
+    let betPoolId;
+
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.makeBet(
+            0,
+            0,
+            156,
+            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
+          );
+        }
+      )
+      .then(
+        function() {
+          return contract.getBetPoolCount();
+        }
+      )
+      .then(
+        function(result) {
+          betPoolId = result.toNumber() - 1;
+          return contract.cancelBet(betPoolId, {from: accounts[0]});
+        }
+      )
+      .then(
+        function() {
+          return contract.betPools.call(betPoolId);
+        }
+      ).then(
+        function(result) {
+          return assert.isTrue(result[2].toNumber() === 0);
+        }
+      )
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+  });
+
 });
