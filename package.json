@@ -19,9 +19,12 @@
     "babel-runtime": "^6.26.0",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
-    "nodemon": "^1.17.4",
+    "nodemon": "^1.17.5",
     "truffle-contract": "^3.0.5",
-    "web3": "^0.20.6"
+    "web3": "^0.20.6",
+    "cheerio": "^1.0.0-rc.2",
+    "moment": "^2.22.2",
+    "request": "^2.87.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -31,11 +34,11 @@
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
     "eslint-config-strongloop": "^2.1.0",
-    "mocha": "^5.1.1",
+    "mocha": "^5.2.0",
     "mocha-junit-reporter": "^1.17.0",
     "mocha-multi-reporters": "^1.1.7",
     "runjs": "^4.3.2",
-    "sinon": "^5.0.4",
+    "sinon": "^5.1.1",
     "truffle-hdwallet-provider": "0.0.5",
     "zeppelin-solidity": "^1.10.0"
   },
