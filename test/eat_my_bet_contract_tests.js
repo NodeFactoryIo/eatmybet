@@ -81,5 +81,45 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   });
 
+  it('should make bet', function() {
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.storeMatch('USA', 'RUS', new Date().getTime() / 1000);
+        }
+      )
+      .then(
+        function() {
+          return contract.getMatchCount();
+        }
+      )
+      .then(
+        function(result) {
+          const matchId = result.toNumber() - 1;
+          return contract.makeBet(
+            matchId,
+            0,
+            156,
+            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
+          );
+        }
+      ).then(
+        function() {
+          return contract.betPools.call(0);
+        }
+      )
+      .then(
+        function(result) {
+          return assert.isTrue(result != null);
+        }
+      )
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+  });
 
 });

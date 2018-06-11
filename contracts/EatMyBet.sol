@@ -50,7 +50,7 @@ contract EatMyBet is Ownable {
         string _homeTeam,
         string _awayTeam,
         uint _startTime
-    ) public payable onlyOwner returns(uint) {
+    ) public payable onlyOwner {
         matches.push(
             Match(
                 {
@@ -60,7 +60,6 @@ contract EatMyBet is Ownable {
                 }
             )
         );
-        return matches.length - 1;
     }
 
     function updateMatchStartTime(
@@ -77,7 +76,7 @@ contract EatMyBet is Ownable {
         require(msg.value >= MIN_POOL_SIZE);
         require(_matchId < matches.length);
         require(_bet <= 2);
-        require(_coef >= 1);
+        require(_coef >= 100);
         BetPool memory betPool;
         betPool.bet = _bet;
         betPool.coef = _coef;
