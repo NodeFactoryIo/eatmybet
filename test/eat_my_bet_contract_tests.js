@@ -24,7 +24,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       ).then(
         function(result) {
-          // result should have 3 properties
+          // result should have 4 properties
           return assert.equal(result.length, 4);
         }
       ).catch(
@@ -49,7 +49,6 @@ contract('eat_my_bet_contract_test', function(accounts) {
       )
       .then(
         function() {
-        // result should have 3 properties
           return contract.matches.call(0);
         }
       ).then(function(result) {
