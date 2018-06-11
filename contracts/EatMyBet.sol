@@ -34,6 +34,8 @@ contract EatMyBet is Ownable {
 
         uint poolSize;
 
+        address owner;
+
         address[] eaters;
 
         mapping(address => uint) eatenAmount;
@@ -42,11 +44,13 @@ contract EatMyBet is Ownable {
 
     Match[] public matches;
 
+    BetPool[] public betPools;
+
     function storeMatch(
         string _homeTeam,
         string _awayTeam,
         uint _startTime
-    ) public payable onlyOwner {
+    ) public payable onlyOwner returns(uint) {
         matches.push(
             Match(
                 {
@@ -56,6 +60,7 @@ contract EatMyBet is Ownable {
                 }
             )
         );
+        return matches.length - 1;
     }
 
     function updateMatchStartTime(
@@ -66,6 +71,20 @@ contract EatMyBet is Ownable {
 
     function getMatchCount() public view returns (uint) {
         return matches.length;
+    }
+
+    function makeBet(uint _matchId, uint8 _bet, uint16 _coef) public payable {
+        require(msg.value >= MIN_POOL_SIZE);
+        require(_matchId < matches.length);
+        require(_bet <= 2);
+        require(_coef >= 1);
+        BetPool memory betPool;
+        betPool.bet = _bet;
+        betPool.coef = _coef;
+        betPool.result = 3;
+        betPool.matchId = _matchId;
+        betPool.poolSize = msg.value;
+        betPools.push(betPool);
     }
 
 }
