@@ -1,7 +1,10 @@
 ![NodeFactory](banner.png)
 
-# Solidity-NodeJs-Docker-Starter
-![CircleCI branch](https://img.shields.io/circleci/project/github/NodeFactoryIo/solidity-node-docker-starter/master.svg)
+# EatMyBet
+
+Repository for backend server and ethereum smart contracts of EatMyBet dApp.
+
+![CircleCI branch](https://img.shields.io/circleci/project/github/NodeFactoryIo/eatmybet/master.svg)
 
 ## Requirements
 
