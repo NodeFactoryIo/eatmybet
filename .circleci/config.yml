@@ -30,7 +30,9 @@ jobs:
           command: docker-compose run --no-deps --rm backend npm run test
       - run:
           name: Run contract tests
-          command: docker-compose run --rm backend truffle "test *"
+          command: |
+            set -ex
+            docker-compose run --rm backend truffle "test *"
       - run:
           name: Save docker layers cache
           command: |
@@ -43,8 +45,37 @@ jobs:
           path: ./test-results
       - store_artifacts:
           path: ./test-results
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./docker-layers.tar
+  deploy-staging:
+    working_directory: ~/app
+    docker:
+      - image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Load Docker layers cache
+          command: |
+            set +o pipefail
+            docker load -i ~/docker-layers.tar | true
+      - run:
+          name: Push image to Docker Hub
+          command: |
+            docker login --username="$DOCKER_HUB_USER" --password="$DOCKER_HUB_PASS"
+            docker push nodefactory/eatmybet:${CIRCLE_SHA1}
+            docker push nodefactory/eatmybet:latest
 workflows:
   version: 2
   build:
     jobs:
       - build
+      - deploy-staging:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
