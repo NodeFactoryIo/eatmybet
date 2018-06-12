@@ -12,6 +12,8 @@ contract EatMyBet is Ownable {
 
     uint public constant RESULT_DELAY = 3 hours;
 
+    uint8 public constant RESULT_UNDEFINED = 3;
+
     event PoolCreated(uint betPoolId, uint indexed matchId, uint8 indexed bet, uint16 coef);
 
     event PoolFilled(uint indexed betPoolId);
@@ -98,7 +100,7 @@ contract EatMyBet is Ownable {
         require(_bet <= 2);
         require(_coef >= 100);
         address[] memory eaters;
-        BetPool memory betPool = BetPool(_bet, 3, _coef, _matchId, msg.value, msg.sender, eaters);
+        BetPool memory betPool = BetPool(_bet, RESULT_UNDEFINED, _coef, _matchId, msg.value, msg.sender, eaters);
         uint betPoolId = betPools.push(betPool) - 1;
         emit PoolCreated(betPoolId, _matchId, _bet, _coef);
     }
@@ -117,8 +119,9 @@ contract EatMyBet is Ownable {
         require(totalAmount >= msg.value);
         for (uint j = 0; j < _betPoolIds.length; j++) {
             BetPool storage betPool = betPools[_betPoolIds[j]];
+            Match storage game = matches[betPool.matchId];
             uint remaining = getRemainingBetPoolAmount(_betPoolIds[j]);
-            require(remaining >= _amounts[j]);
+            require(remaining >= _amounts[j] && betPool.result == RESULT_UNDEFINED && now < (game.startTime - 1 hours));
             betPool.eaters.push(msg.sender);
             betPool.eatenAmount[msg.sender] = _amounts[j];
             betPools[_betPoolIds[j]] = betPool;
@@ -149,5 +152,6 @@ contract EatMyBet is Ownable {
         }
         return remaining;
     }
+
 }
 

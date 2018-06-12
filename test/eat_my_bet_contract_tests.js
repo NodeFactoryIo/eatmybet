@@ -5,7 +5,13 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   let contract;
 
+  function addHours(date, h) {
+    date.setTime(date.getTime() + (h * 60 * 60 * 1000));
+    return date;
+  }
+
   it('should store match', function() {
+
     EatMyBetContract.deployed()
       .then(
         function(_contract) {
@@ -14,7 +20,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
             'CRO',
             'NIG',
             11232,
-            new Date().getTime() / 1000
+            addHours(new Date(), 2).getTime() / 1000
           );
         }
       )
@@ -38,13 +44,16 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   it('should update match start time', function() {
 
-    let orgStartTime = new Date().getTime() / 1000;
+    let orgStartTime = addHours(new Date(), 2).getTime() / 1000;
 
     EatMyBetContract.deployed()
       .then(
         function(_contract) {
           contract = _contract;
-          return contract.updateMatchStartTime(0, (new Date() + 30) / 1000);
+          return contract.updateMatchStartTime(
+            0,
+            addHours(new Date(), 4).getTime() / 1000
+          );
         }
       )
       .then(
@@ -94,7 +103,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
             'USA',
             'RUS',
             123314,
-            new Date().getTime() / 1000
+            addHours(new Date(), 2).getUTCSeconds()
           );
         }
       )
