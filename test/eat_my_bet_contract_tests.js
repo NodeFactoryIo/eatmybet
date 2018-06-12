@@ -162,7 +162,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        async function(result) {
+        function(result) {
           betPoolId = result.logs[0].args.betPoolId.toNumber();
           return contract.cancelBet(
             betPoolId,

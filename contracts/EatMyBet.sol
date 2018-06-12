@@ -122,9 +122,13 @@ contract EatMyBet is Ownable {
     }
 
     function cancelBet(uint _betPoolId) public payable onlyBetOwner(_betPoolId) {
-        require(betPools[_betPoolId].eaters.length == 0);
+        BetPool storage betPool = betPools[_betPoolId];
+        require(betPool.eaters.length == 0);
+        uint profit = betPool.poolSize * (CANCELATION_FEE_PERCENTAGE/100);
+        eatMyBetProfit = eatMyBetProfit + profit;
         delete betPools[_betPoolId];
         emit PoolClosed(_betPoolId);
+        betPool.owner.transfer(betPool.poolSize - profit);
     }
 
     function takeBets(uint[] _betPoolIds, uint[] _amounts) public payable {
