@@ -28,6 +28,7 @@ export default class Scrapper {
             let $fixture = $(this);
             let fixture = {};
 
+            let gameId = $fixture.attr('data-id');
             let date = $fixture.find('.fi__info__datetime--abbr').eq(0).text();
             let time = $fixture.find('.fi-s__date-HHmm').eq(0).attr('data-timeutc');
 
@@ -42,14 +43,18 @@ export default class Scrapper {
             let $awayTeam = $fixture.find('.away').eq(0);
 
             if (isShort) {
-
+              fixture.i = gameId;
               fixture.d = dateTime.utc();
               fixture.h = $homeTeam.find('.fi-t__nTri').eq(0).text();
               fixture.a = $awayTeam.find('.fi-t__nTri').eq(0).text();
 
+              fixture.r = -1;
+
               ret.push(fixture);
               return true;
             }
+
+            fixture.gameId = gameId;
 
             fixture.dateTime = dateTime.utc();
             fixture.groupName = $fixture.find('.fi__info__group').eq(0).text();
@@ -62,15 +67,47 @@ export default class Scrapper {
             fixture.awayTeamName = $awayTeam.find('.fi-t__nText').eq(0).text();
             fixture.awayTeamNameShort = $awayTeam.find('.fi-t__nTri').eq(0).text();
 
+            fixture.homeTeamGoals = 0;
+            fixture.awayTeamGoals = 0;
+
+            fixture.result = -1;
+
             ret.push(fixture);
           });
 
           resolve(ret);
         }
       );
+    });
+  }
+
+  static ScrapFifaForResult(req, res) {
+    return new Promise(function(resolve, reject) {
+      var gameId = req.query.gameId;
+
+      request(
+        {
+          method: 'GET',
+          url: 'http://www.fifa.com/worldcup/matches/',
+        },
+        function(err, response, body, callback) {
+          if (err)
+            return console.error(err);
+
+          let ret = { r: -1, hg: 0, ag: 0 };
+
+          let $ = cheerio.load(body);
+
+          let fixture = $('.fixture[data-id=' + gameId + ']').eq(0);
+
+          ret.r = fixture.attr('data-status');
+
+          // logic for result return : 0, 1, 2 for 1, X, 2
+
+          resolve(ret);
+        }
+      );
 
     });
-
-
   }
 }
