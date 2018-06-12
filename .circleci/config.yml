@@ -52,7 +52,7 @@ jobs:
   deploy-staging:
     working_directory: ~/app
     docker:
-      - image: ccircleci/node:carbon
+      - image: circleci/node:carbon
     steps:
       - attach_workspace:
           at: ~/
