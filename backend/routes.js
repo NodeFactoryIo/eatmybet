@@ -17,6 +17,8 @@ export default () => {
   });
 
   api.get('/contracts', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     res.status(200).send({
       EatMyBetContract: EatMyBetContract,
     });
