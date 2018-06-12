@@ -18,7 +18,7 @@ export default () => {
     let ret = await Scrapper.ScrapFifaForResult(req, res);
     res.json(ret);
   });
-    
+
   api.get('/contracts', (req, res) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With');
