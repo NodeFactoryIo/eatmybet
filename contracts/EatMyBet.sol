@@ -68,9 +68,9 @@ contract EatMyBet is Ownable {
         _;
     }
 
-    function getMatchId(uint _fifaGameId) public view {
-        for(uint i = 0; i < matches.length; i++) {
-            if(matches[i].fifaGameId == _fifaGameId) return i;
+    function getMatchId(uint _fifaGameId) public view returns(uint){
+        for (uint i = 0; i < matches.length; i++) {
+            if (matches[i].fifaGameId == _fifaGameId) return i;
         }
         return 0;
     }
@@ -84,10 +84,10 @@ contract EatMyBet is Ownable {
         matches.push(
             Match(
                 {
-                    startTime : _startTime,
-                    fifaGameId : _fifaGameId,
-                    homeTeam : _homeTeam,
-                    awayTeam : _awayTeam
+                startTime : _startTime,
+                fifaGameId : _fifaGameId,
+                homeTeam : _homeTeam,
+                awayTeam : _awayTeam
                 }
             )
         );
@@ -120,6 +120,7 @@ contract EatMyBet is Ownable {
     function makeBet(uint _matchId, uint8 _bet, uint16 _coef) public payable {
         require(msg.value >= MIN_POOL_SIZE);
         require(_matchId < matches.length);
+        require(_bet > 0);
         require(_bet <= 2);
         require(_coef >= 100);
         address[] memory eaters;
@@ -131,7 +132,7 @@ contract EatMyBet is Ownable {
     function cancelBet(uint _betPoolId) public onlyBetOwner(_betPoolId) {
         BetPool storage betPool = betPools[_betPoolId];
         require(betPool.eaters.length == 0);
-        uint profit = betPool.poolSize * (CANCELATION_FEE_PERCENTAGE/100);
+        uint profit = betPool.poolSize * (CANCELATION_FEE_PERCENTAGE / 100);
         eatMyBetProfit = eatMyBetProfit + profit;
         delete betPools[_betPoolId];
         emit PoolClosed(_betPoolId);
@@ -145,6 +146,7 @@ contract EatMyBet is Ownable {
         }
         require(totalAmount >= msg.value);
         for (uint j = 0; j < _betPoolIds.length; j++) {
+            require(_amounts[j] >= MIN_POOL_SIZE);
             BetPool storage betPool = betPools[_betPoolIds[j]];
             Match storage game = matches[betPool.matchId];
             uint remaining = getRemainingBetPoolAmount(_betPoolIds[j]);
@@ -156,7 +158,7 @@ contract EatMyBet is Ownable {
         }
     }
 
-    function getBetPoolTakenBets(uint _betPoolId) public view returns(uint[]) {
+    function getBetPoolTakenBets(uint _betPoolId) public view returns (uint[]) {
         BetPool storage betPool = betPools[_betPoolId];
         uint length = betPool.eaters.length;
         uint[] memory amounts = new uint[](length);
@@ -166,26 +168,46 @@ contract EatMyBet is Ownable {
         return amounts;
     }
 
-    function getBetPoolEaters(uint _betPoolId) public view returns(address[]) {
+    function getBetPoolTakenAmount(uint _betPoolId) public view returns (uint) {
+        uint[] memory amounts = getBetPoolTakenBets(_betPoolId);
+        uint total = 0;
+        for (uint i = 0; i < amounts.length; i++) {
+            total = total + amounts[i];
+        }
+        return total;
+    }
+
+    function getBetPoolEaters(uint _betPoolId) public view returns (address[]) {
         BetPool storage betPool = betPools[_betPoolId];
         return betPool.eaters;
     }
 
     function claimBetRewards(uint[] _betPoolIds) public {
-        for(uint i = 0; i < _betPoolIds.length; i++) {
+        for (uint i = 0; i < _betPoolIds.length; i++) {
             BetPool storage betPool = betPools[_betPoolIds[i]];
-            require(betPool.owner != 0x);
-            if(betPool.result == RESULT_UNDEFINED) {
-                //  call oraclize
+            require(betPool.owner != 0x0);
+            if (betPool.result == RESULT_UNDEFINED) {
+                //TODO:  call oraclize
                 betPool.result = 1;
             }
-            if(msg.sender == betPool.owner && betPool.result == betPool.bet) {
-
+            uint taken = 0;
+            uint profit = 0;
+            if (msg.sender == betPool.owner && betPool.result == betPool.bet) {
+                taken = getBetPoolTakenAmount(_betPoolIds[i]);
+                require(taken > 0);
+                profit = taken * (feePercentage / 100);
+                betPool.owner.transfer(taken-profit);
+            }
+            if (msg.sender != betPool.owner && betPool.result != betPool.bet) {
+                taken = betPool.eatenAmount[msg.sender];
+                require(taken > 0);
+                profit =  taken * (feePercentage / 100);
+                betPool.owner.transfer(taken-profit);
             }
         }
     }
 
-    function getRemainingBetPoolAmount(uint _betPoolId) internal view returns(uint) {
+    function getRemainingBetPoolAmount(uint _betPoolId) internal view returns (uint) {
         BetPool storage betPool = betPools[_betPoolId];
         uint remaining = betPool.poolSize;
         for (uint i = 0; i < betPool.eaters.length; i++) {
@@ -193,6 +215,7 @@ contract EatMyBet is Ownable {
         }
         return remaining;
     }
+
 
 }
 

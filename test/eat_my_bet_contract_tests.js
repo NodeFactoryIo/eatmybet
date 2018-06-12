@@ -117,7 +117,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
           const matchId = result.toNumber() - 1;
           return contract.makeBet(
             matchId,
-            0,
+            1,
             156,
             {from: accounts[0], value: web3.toWei(0.01, 'ether')}
           );
@@ -155,7 +155,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
           contract = _contract;
           return contract.makeBet(
             0,
-            0,
+            2,
             156,
             {from: accounts[0], value: web3.toWei(0.1, 'ether')}
           );
@@ -197,7 +197,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
             1,
             1,
             176,
-            {from: accounts[0], value: web3.toWei(0.04, 'ether')}
+            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
           );
         }
       )
@@ -232,4 +232,5 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       );
   });
+
 });
