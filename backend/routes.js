@@ -13,17 +13,17 @@ export default () => {
     let ret = await Scrapper.ScrapFifa(req, res);
     res.json(ret);
   });
-
+  
   api.get('/fixtures-01/get-result', async(req, res) => {
     let ret = await Scrapper.ScrapFifaForResult(req, res);
     res.json(ret);
   });
-    
+  
   api.get('/contracts', (req, res) => {
     res.status(200).send({
       EatMyBetContract: EatMyBetContract,
     });
   });
-
+  
   return api;
 };
