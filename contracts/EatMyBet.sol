@@ -117,10 +117,12 @@ contract EatMyBet is Ownable {
         require(totalAmount >= msg.value);
         for (uint j = 0; j < _betPoolIds.length; j++) {
             BetPool storage betPool = betPools[_betPoolIds[j]];
-            require(getRemainingBetPoolAmount(_betPoolIds[j]) >= _amounts[j]);
+            uint remaining = getRemainingBetPoolAmount(_betPoolIds[j]);
+            require(remaining >= _amounts[j]);
             betPool.eaters.push(msg.sender);
             betPool.eatenAmount[msg.sender] = _amounts[j];
             betPools[_betPoolIds[j]] = betPool;
+            emit PoolFilled(_betPoolIds[j]);
         }
     }
 
