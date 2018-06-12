@@ -12,7 +12,7 @@ contract EatMyBet is Ownable {
 
     uint public constant RESULT_DELAY = 3 hours;
 
-    uint8 public constant RESULT_UNDEFINED = 3;
+    uint8 public constant RESULT_UNDEFINED = 0;
 
     uint public constant CANCELATION_FEE_PERCENTAGE = 10;
 
@@ -68,12 +68,19 @@ contract EatMyBet is Ownable {
         _;
     }
 
+    function getMatchId(uint _fifaGameId) public view {
+        for(uint i = 0; i < matches.length; i++) {
+            if(matches[i].fifaGameId == _fifaGameId) return i;
+        }
+        return 0;
+    }
+
     function storeMatch(
         string _homeTeam,
         string _awayTeam,
         uint _fifaGameId,
         uint _startTime
-    ) public payable onlyOwner {
+    ) public onlyOwner {
         matches.push(
             Match(
                 {
@@ -88,11 +95,11 @@ contract EatMyBet is Ownable {
 
     function updateMatchStartTime(
         uint _matchId, uint _startTime
-    ) public payable onlyOwner {
+    ) public onlyOwner {
         matches[_matchId].startTime = _startTime;
     }
 
-    function setFeePercentage(uint _feePercentage) public payable onlyOwner {
+    function setFeePercentage(uint _feePercentage) public onlyOwner {
         feePercentage = _feePercentage;
     }
 
@@ -121,7 +128,7 @@ contract EatMyBet is Ownable {
         emit PoolCreated(betPoolId, _matchId, _bet, _coef);
     }
 
-    function cancelBet(uint _betPoolId) public payable onlyBetOwner(_betPoolId) {
+    function cancelBet(uint _betPoolId) public onlyBetOwner(_betPoolId) {
         BetPool storage betPool = betPools[_betPoolId];
         require(betPool.eaters.length == 0);
         uint profit = betPool.poolSize * (CANCELATION_FEE_PERCENTAGE/100);
@@ -162,6 +169,20 @@ contract EatMyBet is Ownable {
     function getBetPoolEaters(uint _betPoolId) public view returns(address[]) {
         BetPool storage betPool = betPools[_betPoolId];
         return betPool.eaters;
+    }
+
+    function claimBetRewards(uint[] _betPoolIds) public {
+        for(uint i = 0; i < _betPoolIds.length; i++) {
+            BetPool storage betPool = betPools[_betPoolIds[i]];
+            require(betPool.owner != 0x);
+            if(betPool.result == RESULT_UNDEFINED) {
+                //  call oraclize
+                betPool.result = 1;
+            }
+            if(msg.sender == betPool.owner && betPool.result == betPool.bet) {
+
+            }
+        }
     }
 
     function getRemainingBetPoolAmount(uint _betPoolId) internal view returns(uint) {
