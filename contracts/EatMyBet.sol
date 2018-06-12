@@ -12,6 +12,12 @@ contract EatMyBet is Ownable {
 
     uint public constant RESULT_DELAY = 3 hours;
 
+    event PoolCreated(uint betPoolId, uint indexed matchId, uint8 indexed bet, uint16 coef);
+
+    event PoolFilled(uint indexed betPoolId);
+
+    event PoolClosed(uint indexed betPoolId);
+
     struct Match {
 
         uint startTime;
@@ -93,13 +99,53 @@ contract EatMyBet is Ownable {
         require(_coef >= 100);
         address[] memory eaters;
         BetPool memory betPool = BetPool(_bet, 3, _coef, _matchId, msg.value, msg.sender, eaters);
-        betPools.push(betPool);
+        uint betPoolId = betPools.push(betPool) - 1;
+        emit PoolCreated(betPoolId, _matchId, _bet, _coef);
     }
 
     function cancelBet(uint _betPoolId) public payable onlyBetOwner(_betPoolId) {
         require(betPools[_betPoolId].eaters.length == 0);
         delete betPools[_betPoolId];
+        emit PoolClosed(_betPoolId);
     }
 
+    function takeBets(uint[] _betPoolIds, uint[] _amounts) public payable {
+        uint totalAmount = 0;
+        for (uint i = 0; i < _amounts.length; i++) {
+            totalAmount = totalAmount + _amounts[i];
+        }
+        require(totalAmount >= msg.value);
+        for (uint j = 0; j < _betPoolIds.length; j++) {
+            BetPool storage betPool = betPools[_betPoolIds[j]];
+            require(getRemainingBetPoolAmount(_betPoolIds[j]) >= _amounts[j]);
+            betPool.eaters.push(msg.sender);
+            betPool.eatenAmount[msg.sender] = _amounts[j];
+            betPools[_betPoolIds[j]] = betPool;
+        }
+    }
+
+    function getBetPoolTakenBets(uint _betPoolId) public view returns(uint[]) {
+        BetPool storage betPool = betPools[_betPoolId];
+        uint length = betPool.eaters.length;
+        uint[] memory amounts = new uint[](length);
+        for (uint i = 0; i < length; i++) {
+            amounts[i] = betPool.eatenAmount[betPool.eaters[i]];
+        }
+        return amounts;
+    }
+
+    function getBetPoolEaters(uint _betPoolId) public view returns(address[]) {
+        BetPool storage betPool = betPools[_betPoolId];
+        return betPool.eaters;
+    }
+
+    function getRemainingBetPoolAmount(uint _betPoolId) internal view returns(uint) {
+        BetPool storage betPool = betPools[_betPoolId];
+        uint remaining = betPool.poolSize;
+        for (uint i = 0; i < betPool.eaters.length; i++) {
+            remaining -= betPool.eatenAmount[betPool.eaters[i]];
+        }
+        return remaining;
+    }
 }
 
