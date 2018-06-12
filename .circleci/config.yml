@@ -49,21 +49,22 @@ jobs:
             - ./docker-layers.tar
   deploy-staging:
     working_directory: ~/app
-        image: circleci/classic:latest
-        steps:
-          - attach_workspace:
-              at: ~/
-           - run:
-              name: Load Docker layers cache
-              command: |
-                set +o pipefail
-                docker load -i ~/docker-layers.tar | true
-          - run:
-              name: Push image to Docker Hub
-              command: |
-                docker login --username="$DOCKER_HUB_USER" --password="$DOCKER_HUB_PASS"
-                docker push nodefactory/eatmybet:${CIRCLE_SHA1}
-                docker push nodefactory/eatmybet:latest
+    docker:
+      - image: circleci/classic:latest
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Load Docker layers cache
+          command: |
+            set +o pipefail
+            docker load -i ~/docker-layers.tar | true
+      - run:
+          name: Push image to Docker Hub
+          command: |
+            docker login --username="$DOCKER_HUB_USER" --password="$DOCKER_HUB_PASS"
+            docker push nodefactory/eatmybet:${CIRCLE_SHA1}
+            docker push nodefactory/eatmybet:latest
 workflows:
   version: 2
   build:
@@ -71,7 +72,7 @@ workflows:
       - build
       - deploy-staging:
           requires:
-              - build
+            - build
           filters:
             branches:
               only:
