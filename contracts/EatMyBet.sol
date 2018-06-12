@@ -14,6 +14,12 @@ contract EatMyBet is Ownable {
 
     uint8 public constant RESULT_UNDEFINED = 3;
 
+    uint public constant CANCELATION_FEE_PERCENTAGE = 10;
+
+    uint private feePercentage = 5;
+
+    uint private eatMyBetProfit = 0;
+
     event PoolCreated(uint betPoolId, uint indexed matchId, uint8 indexed bet, uint16 coef);
 
     event PoolFilled(uint indexed betPoolId);
@@ -84,6 +90,16 @@ contract EatMyBet is Ownable {
         uint _matchId, uint _startTime
     ) public payable onlyOwner {
         matches[_matchId].startTime = _startTime;
+    }
+
+    function setFeePercentage(uint _feePercentage) public payable onlyOwner {
+        feePercentage = _feePercentage;
+    }
+
+    function withrawProfit() public payable onlyOwner {
+        require(eatMyBetProfit > 0);
+        eatMyBetProfit = 0;
+        owner.transfer(eatMyBetProfit);
     }
 
     function getMatchCount() public view returns (uint) {
