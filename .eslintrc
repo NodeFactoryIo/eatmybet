@@ -1,4 +1,11 @@
 {
   "extends": "strongloop",
-  "parser": "babel-eslint"
+  "parser": "babel-eslint",
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    "max-len": [2, 100, 8]
+  }
 }
