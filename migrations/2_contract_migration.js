@@ -15,7 +15,7 @@ module.exports = function(deployer) {
         contract.storeMatch(home, away, gameId, startTime)
           .catch(log => {
             console.log('Error ocurred while storing match: ', log);
-            break;
+            process.exit();
           });
       }
     });
