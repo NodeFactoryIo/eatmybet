@@ -90,9 +90,14 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        function(result) {
-          const matchId = result.toNumber();
-          return contract.makeBet(matchId, 0, 156);
+        function() {
+          const matchId = 0;
+          return contract.makeBet(
+            matchId,
+            1,
+            156,
+            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
+          );
         }
       ).then(
         function() {
