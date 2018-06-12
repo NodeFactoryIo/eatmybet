@@ -31,6 +31,34 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   });
 
+  it('should update match start time', function() {
+
+    let orgStartTime = new Date().getTime() / 1000;
+
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.updateMatchStartTime(0, (new Date() + 30) / 1000);
+        }
+      )
+      .then(
+        function() {
+        // result should have 3 properties
+          return contract.matches.call(0);
+        }
+      ).then(function(result) {
+        assert.notEqual(result[2].toNumber(), orgStartTime);
+      })
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+
+  });
+
   it('should obtain total match count', function() {
     EatMyBetContract.deployed()
       .then(

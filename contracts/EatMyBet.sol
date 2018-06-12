@@ -22,26 +22,69 @@ contract EatMyBet is Ownable {
 
     }
 
+    struct BetPool {
+
+        uint8 bet;
+
+        uint8 result;
+
+        uint16 coef;
+
+        uint matchId;
+
+        uint poolSize;
+
+        address owner;
+
+        address[] eaters;
+
+        mapping(address => uint) eatenAmount;
+
+    }
+
     Match[] public matches;
+
+    BetPool[] public betPools;
 
     function storeMatch(
         string _homeTeam,
         string _awayTeam,
         uint _startTime
-    ) public payable onlyOwner {
+    ) public payable onlyOwner returns(uint) {
         matches.push(
             Match(
                 {
-                    homeTeam: _homeTeam,
-                    awayTeam: _awayTeam,
-                    startTime: _startTime
+                    homeTeam : _homeTeam,
+                    awayTeam : _awayTeam,
+                    startTime : _startTime
                 }
             )
         );
+        return matches.length - 1;
     }
 
-    function getMatchCount() public view returns(uint) {
+    function updateMatchStartTime(
+        uint _matchId, uint _startTime
+    ) public payable onlyOwner {
+        matches[_matchId].startTime = _startTime;
+    }
+
+    function getMatchCount() public view returns (uint) {
         return matches.length;
+    }
+
+    function makeBet(uint _matchId, uint8 _bet, uint16 _coef) public payable {
+        require(msg.value >= MIN_POOL_SIZE);
+        require(_matchId < matches.length);
+        require(_bet <= 2);
+        require(_coef >= 1);
+        BetPool memory betPool;
+        betPool.bet = _bet;
+        betPool.coef = _coef;
+        betPool.result = 3;
+        betPool.matchId = _matchId;
+        betPool.poolSize = msg.value;
+        betPools.push(betPool);
     }
 
 }
