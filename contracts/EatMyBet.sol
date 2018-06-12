@@ -105,8 +105,8 @@ contract EatMyBet is Ownable {
 
     function withrawProfit() public payable onlyOwner {
         require(eatMyBetProfit > 0);
-        eatMyBetProfit = 0;
         owner.transfer(eatMyBetProfit);
+        eatMyBetProfit = 0;
     }
 
     function getMatchCount() public view returns (uint) {
@@ -120,7 +120,7 @@ contract EatMyBet is Ownable {
     function makeBet(uint _matchId, uint8 _bet, uint16 _coef) public payable {
         require(msg.value >= MIN_POOL_SIZE);
         require(_matchId < matches.length);
-        require(_bet > 0);
+        require(_bet > 0 && _bet <= 3);
         require(_bet <= 2);
         require(_coef >= 100);
         address[] memory eaters;
@@ -136,7 +136,7 @@ contract EatMyBet is Ownable {
         eatMyBetProfit = eatMyBetProfit + profit;
         delete betPools[_betPoolId];
         emit PoolClosed(_betPoolId);
-        betPool.owner.transfer(betPool.poolSize - profit);
+        msg.sender.transfer(betPool.poolSize - profit);
     }
 
     function takeBets(uint[] _betPoolIds, uint[] _amounts) public payable {
@@ -153,7 +153,6 @@ contract EatMyBet is Ownable {
             require(remaining >= _amounts[j] && betPool.result == RESULT_UNDEFINED && now < (game.startTime - 1 hours));
             betPool.eaters.push(msg.sender);
             betPool.eatenAmount[msg.sender] = _amounts[j];
-            betPools[_betPoolIds[j]] = betPool;
             emit PoolFilled(_betPoolIds[j]);
         }
     }
@@ -185,7 +184,7 @@ contract EatMyBet is Ownable {
     function claimBetRewards(uint[] _betPoolIds) public {
         for (uint i = 0; i < _betPoolIds.length; i++) {
             BetPool storage betPool = betPools[_betPoolIds[i]];
-            require(betPool.owner != 0x0);
+            require(betPool.owner != address(0));
             if (betPool.result == RESULT_UNDEFINED) {
                 //TODO:  call oraclize
                 betPool.result = 1;
