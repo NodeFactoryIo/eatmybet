@@ -52,10 +52,11 @@ jobs:
   deploy-staging:
     working_directory: ~/app
     docker:
-      - image: circleci/classic:latest
+      - image: ccircleci/node:carbon
     steps:
       - attach_workspace:
           at: ~/
+      - setup_remote_docker
       - run:
           name: Load Docker layers cache
           command: |
