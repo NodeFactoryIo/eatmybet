@@ -29,16 +29,16 @@ contract('eat_my_bet_contract_test', function(accounts) {
           return contract.matches.call(0);
         }
       ).then(
-      function(result) {
+        function(result) {
         // result should have 4 properties
-        return assert.equal(result.length, 4);
-      }
-    ).catch(
-      function(error) {
-        console.log('error:', error);
-        return assert.fail(0, 1);
-      }
-    );
+          return assert.equal(result.length, 4);
+        }
+      ).catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
 
   });
 
@@ -61,8 +61,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
           return contract.matches.call(0);
         }
       ).then(function(result) {
-      assert.notEqual(result[0].toNumber(), orgStartTime);
-    })
+        assert.notEqual(result[0].toNumber(), orgStartTime);
+      })
       .catch(
         function(error) {
           console.log('error:', error);
@@ -123,12 +123,12 @@ contract('eat_my_bet_contract_test', function(accounts) {
           );
         }
       ).then(
-      function(result) {
-        return contract.betPools.call(
-          result.logs[0].args.betPoolId.toNumber()
-        );
-      }
-    )
+        function(result) {
+          return contract.betPools.call(
+            result.logs[0].args.betPoolId.toNumber()
+          );
+        }
+      )
       .then(
         function(result) {
           return assert.equal(
@@ -175,10 +175,10 @@ contract('eat_my_bet_contract_test', function(accounts) {
           return contract.betPools.call(betPoolId);
         }
       ).then(
-      function(result) {
-        return assert.isTrue(result[2].toNumber() === 0);
-      }
-    )
+        function(result) {
+          return assert.isTrue(result[2].toNumber() === 0);
+        }
+      )
       .catch(
         function(error) {
           console.log('error:', error);
@@ -221,10 +221,10 @@ contract('eat_my_bet_contract_test', function(accounts) {
           return contract.getBetPoolEaters(betPoolId);
         }
       ).then(
-      function(result) {
-        return assert.equal(accounts[0], result[0]);
-      }
-    )
+        function(result) {
+          return assert.equal(accounts[0], result[0]);
+        }
+      )
       .catch(
         function(error) {
           console.log('error:', error);
