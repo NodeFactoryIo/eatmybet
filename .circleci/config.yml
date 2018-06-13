@@ -77,6 +77,12 @@ jobs:
             docker push nodefactory/eatmybet:${CIRCLE_SHA1}
             docker tag nodefactory/eatmybet:${CIRCLE_SHA1} nodefactory/eatmybet:latest
             docker push nodefactory/eatmybet:latest
+      - run: "\
+              ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              deploy@nodefactory.io \
+              \"env ENVIRONMENT=staging IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
+              /home/deploy/eatmybet/deploy.sh\" \
+              "
 workflows:
   version: 2
   build:
