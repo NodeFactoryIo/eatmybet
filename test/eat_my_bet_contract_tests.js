@@ -82,7 +82,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
       )
       .then(
         function(result) {
-          return assert.equal(result.toNumber(), 1);
+          return assert.isTrue(result.toNumber() > 0);
         }
       )
       .catch(
