@@ -11,7 +11,8 @@
   "scripts": {
     "init": "npm i runjs babel-core babel-register babel-preset-env",
     "dev": "nodemon -r dotenv/config -r babel-register backend/run.js",
-    "staging": "truffle migrate --network ropsten && node -r dotenv/config -r babel-register backend/run.js",
+    "staging": "npm run contracts:migrate:ropsten && node -r dotenv/config -r babel-register backend/run.js",
+    "contracts:migrate:ropsten": "truffle migrate --network ropsten",
     "test": "mocha --require babel-register --reporter mocha-multi-reporters --reporter-options configFile=mocha-backend-config.json backend/tests/*",
     "pretest": "eslint --ignore-path .gitignore .",
     "lint": "eslint --ignore-path .gitignore ."
