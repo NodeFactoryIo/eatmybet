@@ -2,7 +2,7 @@
 let EatMyBet = artifacts.require('./EatMyBet.sol');
 const matches = require('./matches.json');
 
-module.exports = function() {
+module.exports = function(deployer) {
   EatMyBet.deployed()
     .then(contract => {
       for (let i = 0; i < matches.length; i++) {
