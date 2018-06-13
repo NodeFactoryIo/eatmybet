@@ -94,6 +94,52 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   });
 
+  it('should get macth id from fifa game id', function() {
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.getMatchId(11232);
+        }
+      )
+      .then(
+        function(result) {
+          return assert.isAbove(result.toNumber(), 0);
+        }
+      )
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+
+  });
+
+  it('should set fee percentage', function() {
+    EatMyBetContract.deployed()
+      .then(function(_contract) {
+        contract = _contract;
+        return contract.feePercentage();
+      })
+      .then(function(result) {
+        assert.equal(result.toNumber(), 4);
+        return contract.setFeePercentage(3);
+      })
+      .then(function() {
+        return contract.feePercentage();
+      })
+      .then(function(result) {
+        return assert.equal(result.toNumber(), 3);
+      })
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+  });
+
   it('should make bet', function() {
     EatMyBetContract.deployed()
       .then(
@@ -171,7 +217,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        function() {
+        function(result) {
+          assert.equal(result.logs[0].event, 'PoolClosed');
           return contract.betPools.call(betPoolId);
         }
       ).then(
@@ -223,6 +270,52 @@ contract('eat_my_bet_contract_test', function(accounts) {
       ).then(
         function(result) {
           return assert.equal(accounts[0], result[0]);
+        }
+      )
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+  });
+
+  it('should fill pool', function() {
+    let betPoolId;
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.makeBet(
+            1,
+            1,
+            200,
+            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
+          );
+        }
+      )
+      .then(
+        function(result) {
+          betPoolId = result.logs[0].args.betPoolId.toNumber();
+          return contract.takeBets(
+            [betPoolId],
+            [web3.toWei(0.025, 'ether')],
+            {from: accounts[1], value: web3.toWei(0.025, 'ether')}
+          );
+        }
+      )
+      .then(
+        function() {
+          return contract.takeBets(
+            [betPoolId],
+            [web3.toWei(0.025, 'ether')],
+            {from: accounts[2], value: web3.toWei(0.025, 'ether')}
+          );
+        }
+      )
+      .then(
+        function(result) {
+          return assert.equal(result.logs[0].event, 'PoolFilled');
         }
       )
       .catch(
