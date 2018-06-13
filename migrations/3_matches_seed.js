@@ -2,9 +2,8 @@
 let EatMyBet = artifacts.require('./EatMyBet.sol');
 const matches = require('./matches.json');
 
-module.exports = function(deployer) {
-  deployer.deploy(EatMyBet)
-    .then(() => EatMyBet.deployed())
+module.exports = function() {
+  EatMyBet.deployed()
     .then(contract => {
       for (let i = 0; i < matches.length; i++) {
         const gameId = matches[i].gameId;
