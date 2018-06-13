@@ -2,7 +2,7 @@ version: "3"
 services:
   backend:
     restart: always
-    command: npm run start
+    command: npm run prod
     image: nodefactory/eatmybet:${IMAGE_TAG:-latest}
     container_name: "${BACKEND_CONTAINER_NAME:-eatmybet-backend}"
     ports:
