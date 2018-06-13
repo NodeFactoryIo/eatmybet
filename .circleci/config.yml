@@ -67,6 +67,7 @@ jobs:
           command: |
             docker login --username="$DOCKER_HUB_USER" --password="$DOCKER_HUB_PASS"
             docker push nodefactory/eatmybet:${CIRCLE_SHA1}
+            docker tag nodefactory/eatmybet:${CIRCLE_SHA1} nodefactory/eatmybet:latest
             docker push nodefactory/eatmybet:latest
 workflows:
   version: 2
