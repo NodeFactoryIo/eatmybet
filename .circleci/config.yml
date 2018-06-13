@@ -80,7 +80,7 @@ jobs:
       - run: "\
               ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
               deploy@nodefactory.io \
-              \"env ENVIRONMENT=staging IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
+              \"env ENVIRONMENT=staging BACKEND_PORT=3001 IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
               /home/deploy/eatmybet/deploy.sh\" \
               "
 workflows:
