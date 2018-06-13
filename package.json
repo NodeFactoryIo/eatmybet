@@ -11,6 +11,7 @@
   "scripts": {
     "init": "npm i runjs babel-core babel-register babel-preset-env",
     "dev": "nodemon -r dotenv/config -r babel-register backend/run.js",
+    "prod": "node -r dotenv/config -r babel-register backend/run.js",
     "test": "mocha --require babel-register --reporter mocha-multi-reporters --reporter-options configFile=mocha-backend-config.json backend/tests/*",
     "pretest": "eslint --ignore-path .gitignore .",
     "lint": "eslint --ignore-path .gitignore ."

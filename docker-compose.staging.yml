@@ -1,0 +1,11 @@
+version: "3"
+services:
+  backend:
+    restart: always
+    command: npm run start
+    image: nodefactory/eatmybet:${IMAGE_TAG:-latest}
+    container_name: "${BACKEND_CONTAINER_NAME:-eatmybet-backend}"
+    ports:
+          - "${BACKEND_PORT:-3000}:3000"
+    environment:
+          - NODE_ENV=${NODE_ENV:-production}
