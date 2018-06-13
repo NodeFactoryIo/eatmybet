@@ -68,7 +68,7 @@ contract EatMyBet is Ownable {
         _;
     }
 
-    function getMatchId(uint _fifaGameId) public view returns(uint){
+    function getMatchId(uint _fifaGameId) public view returns (uint){
         for (uint i = 0; i < matches.length; i++) {
             if (matches[i].fifaGameId == _fifaGameId) return i;
         }
@@ -150,7 +150,11 @@ contract EatMyBet is Ownable {
             BetPool storage betPool = betPools[_betPoolIds[j]];
             Match storage game = matches[betPool.matchId];
             uint remaining = getRemainingBetPoolAmount(_betPoolIds[j]);
-            require(remaining >= _amounts[j] && betPool.result == RESULT_UNDEFINED && now < (game.startTime - 1 hours));
+            require(
+                remaining >= (_amounts[j] * (betPool.coef / 100))
+                && betPool.result == RESULT_UNDEFINED
+                && now < (game.startTime - 1 hours)
+            );
             betPool.eaters.push(msg.sender);
             betPool.eatenAmount[msg.sender] = _amounts[j];
             emit PoolFilled(_betPoolIds[j]);
@@ -162,7 +166,7 @@ contract EatMyBet is Ownable {
         uint length = betPool.eaters.length;
         uint[] memory amounts = new uint[](length);
         for (uint i = 0; i < length; i++) {
-            amounts[i] = betPool.eatenAmount[betPool.eaters[i]];
+            amounts[i] = betPool.eatenAmount[betPool.eaters[i]] * (betPool.coef / 100);
         }
         return amounts;
     }
@@ -195,13 +199,13 @@ contract EatMyBet is Ownable {
                 taken = getBetPoolTakenAmount(_betPoolIds[i]);
                 require(taken > 0);
                 profit = taken * (feePercentage / 100);
-                betPool.owner.transfer(taken-profit);
+                betPool.owner.transfer(taken - profit);
             }
             if (msg.sender != betPool.owner && betPool.result != betPool.bet) {
-                taken = betPool.eatenAmount[msg.sender];
+                taken = betPool.eatenAmount[msg.sender] * (betPool.coef / 100);
                 require(taken > 0);
-                profit =  taken * (feePercentage / 100);
-                betPool.owner.transfer(taken-profit);
+                profit = taken * (feePercentage / 100);
+                msg.sender.transfer(taken - profit);
             }
         }
     }
@@ -210,7 +214,7 @@ contract EatMyBet is Ownable {
         BetPool storage betPool = betPools[_betPoolId];
         uint remaining = betPool.poolSize;
         for (uint i = 0; i < betPool.eaters.length; i++) {
-            remaining -= betPool.eatenAmount[betPool.eaters[i]];
+            remaining -= (betPool.eatenAmount[betPool.eaters[i]] * (betPool.coef / 100));
         }
         return remaining;
     }
