@@ -19,7 +19,7 @@ module.exports = {
         );
       },
       gas: 4612388,
-      gasPrice: 1,
+      gasPrice: 10,
       network_id: 3,
     },
   },
