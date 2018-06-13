@@ -45,10 +45,15 @@ jobs:
           path: ./test-results
       - store_artifacts:
           path: ./test-results
+      - run:
+          name: Export env variables
+          command: |
+             echo "export CIRCLE_SHA1=$CIRCLE_SHA1" >> ~/env_file
       - persist_to_workspace:
           root: ~/
           paths:
             - ./docker-layers.tar
+            - ./env_file
   deploy-staging:
     working_directory: ~/app
     docker:
@@ -57,6 +62,9 @@ jobs:
       - attach_workspace:
           at: ~/
       - setup_remote_docker
+      - run:
+          name: Import env variables
+          command: source ~/env_file
       - run:
           name: Load Docker layers cache
           command: |
