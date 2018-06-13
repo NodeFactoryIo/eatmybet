@@ -12,7 +12,7 @@ docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
 echo ""
 echo "---|> Updating images"
 echo ""
-docker-compose -f docker-compose.${ENVIRONMENT}.yml  pull --ignore-pull-failures
+docker-compose -f /home/deploy/eatmybet/docker-compose.${ENVIRONMENT}.yml  pull --ignore-pull-failures
 
 echo ""
 echo "---|> Cleaning docker environment"
@@ -33,4 +33,4 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /etc:/etc spotif
 echo ""
 echo "---|> Restarting services"
 echo ""
-docker-compose -f docker-compose.${ENVIRONMENT}.yml up -d
+docker-compose -f /home/deploy/eatmybet/docker-compose.${ENVIRONMENT}.yml up -d
