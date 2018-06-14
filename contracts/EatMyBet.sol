@@ -26,6 +26,8 @@ contract EatMyBet is Ownable {
 
     event PoolClosed(uint indexed betPoolId);
 
+    event BetTaken(uint betPoolId, address indexed eater, uint indexed gameId, uint amount);
+
     struct BetPool {
 
         uint8 bet;
@@ -121,7 +123,8 @@ contract EatMyBet is Ownable {
         for (uint j = 0; j < _betPoolIds.length; j++) {
             require(_amounts[j] >= MIN_POOL_SIZE);
             BetPool storage betPool = betPools[_betPoolIds[j]];
-            uint remaining = getRemainingBetPoolAmount(_betPoolIds[j]);
+            uint betPoolId = _betPoolIds[j];
+            uint remaining = getRemainingBetPoolAmount(betPoolId);
             require(
                 remaining >= (_amounts[j] * (betPool.coef / 100))
                 && betPool.result == RESULT_UNDEFINED
@@ -129,6 +132,7 @@ contract EatMyBet is Ownable {
             );
             betPool.eaters.push(msg.sender);
             betPool.eatenAmount[msg.sender] = _amounts[j];
+            emit BetTaken(betPoolId, msg.sender, betPool.gameId, _amounts[j]);
             if (remaining == (_amounts[j] * (betPool.coef / 100))) {
                 emit PoolFilled(_betPoolIds[j]);
             }
