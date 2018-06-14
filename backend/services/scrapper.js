@@ -21,7 +21,8 @@ export default class Scrapper {
 
           let $ = cheerio.load(body);
 
-          let fixtures = $('.fixture');
+          // let fixtures = $('.fixture, .live');
+          let fixtures = $('.fi-mu');
 
           fixtures.each(function(i, element){
 
@@ -67,10 +68,24 @@ export default class Scrapper {
             fixture.awayTeamName = $awayTeam.find('.fi-t__nText').eq(0).text();
             fixture.awayTeamNameShort = $awayTeam.find('.fi-t__nTri').eq(0).text();
 
+            let score = $fixture.find('.fi-s__scoreText').eq(0).text();
+            let scoreArray = score.split('-');
+
             fixture.homeTeamGoals = 0;
             fixture.awayTeamGoals = 0;
-
             fixture.result = -1;
+
+            if (scoreArray.length === 2){
+              fixture.homeTeamGoals = parseInt(scoreArray[0], 10);
+              fixture.awayTeamGoals = parseInt(scoreArray[1], 10);
+
+              if (fixture.homeTeamGoals > fixture.awayTeamGoals)
+                fixture.result = 1;
+              else if (fixture.homeTeamGoals === fixture.awayTeamGoals)
+                fixture.result = 2;
+              else if (fixture.homeTeamGoals < fixture.awayTeamGoals)
+                fixture.result = 3;
+            }
 
             ret.push(fixture);
           });
@@ -98,11 +113,24 @@ export default class Scrapper {
 
           let $ = cheerio.load(body);
 
-          let fixture = $('.fixture[data-id=' + gameId + ']').eq(0);
+          let $fixture = $('.fi-mu[data-id=' + gameId + ']').eq(0);
 
-          ret.r = fixture.attr('data-status');
+          ret.r = $fixture.attr('data-status');
 
-          // logic for result return : 0, 1, 2 for 1, X, 2
+          let score = $fixture.find('.fi-s__scoreText').eq(0).text();
+          let scoreArray = score.split('-');
+
+          if (scoreArray.length === 2){
+            ret.hg = parseInt(scoreArray[0], 10);
+            ret.ag = parseInt(scoreArray[1], 10);
+
+            if (ret.hg > ret.ag)
+              ret.r = 1;
+            else if (ret.hg === ret.ag)
+              ret.r = 2;
+            else if (ret.hg < ret.ag)
+              ret.r = 3;
+          }
 
           resolve(ret);
         }
