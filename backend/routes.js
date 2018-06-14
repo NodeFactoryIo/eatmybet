@@ -10,11 +10,15 @@ export default () => {
   });
 
   api.get('/fixtures-01', async(req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     let ret = await Scrapper.ScrapFifa(req, res);
     res.json(ret);
   });
 
   api.get('/fixtures-01/get-result', async(req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     let ret = await Scrapper.ScrapFifaForResult(req, res);
     res.json(ret);
   });
