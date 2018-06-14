@@ -12,26 +12,26 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   it('should store match', function() {
 
+    const startTime = Math.round(addHours(new Date(), 2).getTime() / 1000);
+
     EatMyBetContract.deployed()
       .then(
         function(_contract) {
           contract = _contract;
           return contract.storeMatch(
-            'CRO',
-            'NIG',
-            11232,
-            addHours(new Date(), 2).getTime() / 1000
+            [123],
+            [startTime]
           );
         }
       )
       .then(
         function() {
-          return contract.matches.call(0);
+          return contract.matchStartTimes.call(123);
         }
       ).then(
         function(result) {
         // result should have 4 properties
-          return assert.equal(result.length, 4);
+          return assert.equal(result.toNumber(), startTime);
         }
       ).catch(
         function(error) {
@@ -50,63 +50,25 @@ contract('eat_my_bet_contract_test', function(accounts) {
       .then(
         function(_contract) {
           contract = _contract;
-          return contract.updateMatchStartTime(
-            0,
-            addHours(new Date(), 4).getTime() / 1000
+          return contract.storeMatch(
+            [124],
+            [orgStartTime]
           );
         }
       )
+      .then(function() {
+        return contract.updateMatchStartTime(
+          124,
+          addHours(new Date(), 4).getTime() / 1000
+        );
+      })
       .then(
         function() {
-          return contract.matches.call(0);
+          return contract.matchStartTimes.call(124);
         }
       ).then(function(result) {
-        assert.notEqual(result[0].toNumber(), orgStartTime);
+        assert.notEqual(result.toNumber(), orgStartTime);
       })
-      .catch(
-        function(error) {
-          console.log('error:', error);
-          return assert.fail(0, 1);
-        }
-      );
-
-  });
-
-  it('should obtain total match count', function() {
-    EatMyBetContract.deployed()
-      .then(
-        function(_contract) {
-          contract = _contract;
-          return contract.getMatchCount();
-        }
-      )
-      .then(
-        function(result) {
-          return assert.isTrue(result.toNumber() > 0);
-        }
-      )
-      .catch(
-        function(error) {
-          console.log('error:', error);
-          return assert.fail(0, 1);
-        }
-      );
-
-  });
-
-  it('should get macth id from fifa game id', function() {
-    EatMyBetContract.deployed()
-      .then(
-        function(_contract) {
-          contract = _contract;
-          return contract.getMatchId(11232);
-        }
-      )
-      .then(
-        function(result) {
-          return assert.isAbove(result.toNumber(), 0);
-        }
-      )
       .catch(
         function(error) {
           console.log('error:', error);
@@ -146,23 +108,15 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(_contract) {
           contract = _contract;
           return contract.storeMatch(
-            'USA',
-            'RUS',
-            123314,
-            addHours(new Date(), 2).getUTCSeconds()
+            [125],
+            [addHours(new Date(), 2).getUTCSeconds()]
           );
         }
       )
       .then(
         function() {
-          return contract.getMatchCount();
-        }
-      )
-      .then(
-        function(result) {
-          const matchId = result.toNumber() - 1;
           return contract.makeBet(
-            matchId,
+            125,
             1,
             156,
             {from: accounts[0], value: web3.toWei(0.01, 'ether')}
@@ -200,7 +154,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(_contract) {
           contract = _contract;
           return contract.makeBet(
-            0,
+            125,
             2,
             156,
             {from: accounts[0], value: web3.toWei(0.1, 'ether')}
@@ -241,7 +195,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(_contract) {
           contract = _contract;
           return contract.makeBet(
-            1,
+            125,
             1,
             176,
             {from: accounts[0], value: web3.toWei(0.1, 'ether')}
@@ -287,7 +241,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(_contract) {
           contract = _contract;
           return contract.makeBet(
-            1,
+            125,
             1,
             200,
             {from: accounts[0], value: web3.toWei(0.1, 'ether')}
