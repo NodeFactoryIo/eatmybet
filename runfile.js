@@ -9,6 +9,10 @@ export function clean() {
   run('rm -rf node_modules');
 }
 
+export function cmd() {
+  run('docker-compose exec backend sh');
+}
+
 
 export function lint() {
   run('docker-compose run --rm backend npm run lint');
@@ -21,5 +25,6 @@ export function build() {
 }
 
 help(clean, 'Removes all build directories and dependencies');
+help(cmd, 'Opens sh terminal inside container');
 help(lint, 'Runs eslint on current project');
 help(build, 'Builds new docker image');

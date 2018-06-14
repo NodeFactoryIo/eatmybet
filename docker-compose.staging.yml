@@ -1,0 +1,13 @@
+version: "3"
+services:
+  backend:
+    restart: always
+    command: npm run staging
+    image: nodefactory/eatmybet:${IMAGE_TAG:-latest}
+    container_name: "${BACKEND_CONTAINER_NAME:-eatmybet-backend}"
+    volumes:
+          - ./build/contracts:/usr/app/build/contracts
+    ports:
+          - "${BACKEND_PORT:-3000}:3000"
+    environment:
+          - NODE_ENV=${NODE_ENV:-production}

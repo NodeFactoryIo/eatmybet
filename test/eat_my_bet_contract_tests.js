@@ -12,26 +12,26 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   it('should store match', function() {
 
+    const startTime = Math.round(addHours(new Date(), 2).getTime() / 1000);
+
     EatMyBetContract.deployed()
       .then(
         function(_contract) {
           contract = _contract;
           return contract.storeMatch(
-            'CRO',
-            'NIG',
-            11232,
-            addHours(new Date(), 2).getTime() / 1000
+            [123],
+            [startTime]
           );
         }
       )
       .then(
         function() {
-          return contract.matches.call(0);
+          return contract.matchStartTimes.call(123);
         }
       ).then(
         function(result) {
         // result should have 4 properties
-          return assert.equal(result.length, 4);
+          return assert.equal(result.toNumber(), startTime);
         }
       ).catch(
         function(error) {
@@ -50,18 +50,24 @@ contract('eat_my_bet_contract_test', function(accounts) {
       .then(
         function(_contract) {
           contract = _contract;
-          return contract.updateMatchStartTime(
-            0,
-            addHours(new Date(), 4).getTime() / 1000
+          return contract.storeMatch(
+            [124],
+            [orgStartTime]
           );
         }
       )
+      .then(function() {
+        return contract.updateMatchStartTime(
+          124,
+          addHours(new Date(), 4).getTime() / 1000
+        );
+      })
       .then(
         function() {
-          return contract.matches.call(0);
+          return contract.matchStartTimes.call(124);
         }
       ).then(function(result) {
-        assert.notEqual(result[0].toNumber(), orgStartTime);
+        assert.notEqual(result.toNumber(), orgStartTime);
       })
       .catch(
         function(error) {
@@ -72,26 +78,28 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   });
 
-  it('should obtain total match count', function() {
+  it('should set fee percentage', function() {
     EatMyBetContract.deployed()
-      .then(
-        function(_contract) {
-          contract = _contract;
-          return contract.getMatchCount();
-        }
-      )
-      .then(
-        function(result) {
-          return assert.equal(result.toNumber(), 1);
-        }
-      )
+      .then(function(_contract) {
+        contract = _contract;
+        return contract.feePercentage();
+      })
+      .then(function(result) {
+        assert.equal(result.toNumber(), 4);
+        return contract.setFeePercentage(3);
+      })
+      .then(function() {
+        return contract.feePercentage();
+      })
+      .then(function(result) {
+        return assert.equal(result.toNumber(), 3);
+      })
       .catch(
         function(error) {
           console.log('error:', error);
           return assert.fail(0, 1);
         }
       );
-
   });
 
   it('should make bet', function() {
@@ -100,23 +108,15 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(_contract) {
           contract = _contract;
           return contract.storeMatch(
-            'USA',
-            'RUS',
-            123314,
-            addHours(new Date(), 2).getUTCSeconds()
+            [125],
+            [addHours(new Date(), 2).getUTCSeconds()]
           );
         }
       )
       .then(
         function() {
-          return contract.getMatchCount();
-        }
-      )
-      .then(
-        function(result) {
-          const matchId = result.toNumber() - 1;
           return contract.makeBet(
-            matchId,
+            125,
             1,
             156,
             {from: accounts[0], value: web3.toWei(0.01, 'ether')}
@@ -154,7 +154,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(_contract) {
           contract = _contract;
           return contract.makeBet(
-            0,
+            125,
             2,
             156,
             {from: accounts[0], value: web3.toWei(0.1, 'ether')}
@@ -171,7 +171,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        function() {
+        function(result) {
+          assert.equal(result.logs[0].event, 'PoolClosed');
           return contract.betPools.call(betPoolId);
         }
       ).then(
@@ -194,7 +195,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(_contract) {
           contract = _contract;
           return contract.makeBet(
-            1,
+            125,
             1,
             176,
             {from: accounts[0], value: web3.toWei(0.1, 'ether')}
@@ -208,7 +209,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        function(result) {
+        function() {
           return contract.takeBets(
             [betPoolId],
             [web3.toWei(0.01, 'ether')],
@@ -217,12 +218,60 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        function() {
+        function(result) {
+          assert.equal(result.logs[0].event, 'BetTaken');
           return contract.getBetPoolEaters(betPoolId);
         }
       ).then(
         function(result) {
           return assert.equal(accounts[0], result[0]);
+        }
+      )
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+  });
+
+  it('should fill pool', function() {
+    let betPoolId;
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.makeBet(
+            125,
+            1,
+            200,
+            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
+          );
+        }
+      )
+      .then(
+        function(result) {
+          betPoolId = result.logs[0].args.betPoolId.toNumber();
+          return contract.takeBets(
+            [betPoolId],
+            [web3.toWei(0.025, 'ether')],
+            {from: accounts[1], value: web3.toWei(0.025, 'ether')}
+          );
+        }
+      )
+      .then(
+        function() {
+          return contract.takeBets(
+            [betPoolId],
+            [web3.toWei(0.025, 'ether')],
+            {from: accounts[2], value: web3.toWei(0.025, 'ether')}
+          );
+        }
+      )
+      .then(
+        function(result) {
+          assert.equal(result.logs[0].event, 'BetTaken');
+          return assert.equal(result.logs[1].event, 'PoolFilled');
         }
       )
       .catch(
