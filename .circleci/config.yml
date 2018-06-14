@@ -48,7 +48,7 @@ jobs:
       - run:
           name: Export env variables
           command: |
-             echo "export CIRCLE_SHA1=$CIRCLE_SHA1" >> ~/env_file
+             echo "$CIRCLE_SHA1" >> ~/env_file
       - persist_to_workspace:
           root: ~/
           paths:
@@ -64,7 +64,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Import env variables
-          command: source ~/env_file
+          command: export CIRCLE_SHA1="${cat ~/env_file}"
       - run:
           name: Load Docker layers cache
           command: |
@@ -80,7 +80,7 @@ jobs:
       - run: "\
               ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
               deploy@nodefactory.io \
-              \"env ENVIRONMENT=staging BACKEND_PORT=3001 IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
+              \"env ENVIRONMENT=staging IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
               /home/deploy/eatmybet/deploy.sh\" \
               "
 workflows:
