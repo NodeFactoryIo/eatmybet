@@ -209,7 +209,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        function(result) {
+        function() {
           return contract.takeBets(
             [betPoolId],
             [web3.toWei(0.01, 'ether')],
@@ -218,7 +218,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
         }
       )
       .then(
-        function() {
+        function(result) {
+          assert.equal(result.logs[0].event, 'BetTaken');
           return contract.getBetPoolEaters(betPoolId);
         }
       ).then(
@@ -269,7 +270,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
       )
       .then(
         function(result) {
-          return assert.equal(result.logs[0].event, 'PoolFilled');
+          assert.equal(result.logs[0].event, 'BetTaken');
+          return assert.equal(result.logs[1].event, 'PoolFilled');
         }
       )
       .catch(
