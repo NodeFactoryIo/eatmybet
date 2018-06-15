@@ -9,7 +9,7 @@ module.exports = function(deployer) {
       let startTimes = [];
       for (let i = 0; i < matches.length; i++) {
         gameIds.push(matches[i].gameId);
-        startTimes.push(Math.round(new Date(matches[i].dateTime).getTime()));
+        startTimes.push(Math.round(new Date(matches[i].dateTime).getTime() / 1000));
       }
       contract.storeMatch(gameIds, startTimes)
         .catch(log => {
