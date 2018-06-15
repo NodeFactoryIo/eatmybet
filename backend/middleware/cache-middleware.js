@@ -6,6 +6,7 @@ let cacheMiddleware = (duration) => {
     let key = '__express__' + req.originalUrl || req.url;
     let cacheContent = memCache.get(key);
     if (cacheContent){
+      res.setHeader('Content-Type', 'application/json');
       res.send(cacheContent);
     } else {
       res.sendResponse = res.send;
