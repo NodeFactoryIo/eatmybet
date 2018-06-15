@@ -104,8 +104,6 @@ workflows:
               only:
                 - master
       - deploy-prod:
-          requires:
-            - build
           filters:
             branches:
               only:
