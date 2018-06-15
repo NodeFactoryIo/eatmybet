@@ -57,7 +57,6 @@ jobs:
       - attach_workspace:
           at: ~/
       - setup_remote_docker
-      - checkout
       - run:
           name: Load Docker layers cache
           command: |
@@ -66,6 +65,7 @@ jobs:
       - run:
           name: Push image to Docker Hub
           command: |
+            echo $CIRCLE_SHA1
             docker login --username="$DOCKER_HUB_USER" --password="$DOCKER_HUB_PASS"
             docker push nodefactory/eatmybet:${CIRCLE_SHA1}
             docker tag nodefactory/eatmybet:${CIRCLE_SHA1} nodefactory/eatmybet:latest
