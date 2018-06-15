@@ -73,9 +73,22 @@ jobs:
       - run: "\
               ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
               deploy@nodefactory.io \
-              \"env ENVIRONMENT=staging IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
-              /home/deploy/eatmybet/deploy.sh\" \
-              "
+              \"cd /home/deploy/eatmybet-staging && git pull && chmod a+x deploy.sh && env ENVIRONMENT=staging IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
+              ./deploy.sh\" \"
+  deploy-prod:
+    working_directory: ~/app
+    docker:
+      - image: circleci/node:carbon
+    steps:
+      - attach_workspace:
+          at: ~/
+      - setup_remote_docker
+      - checkout
+      - run: "\
+              ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              deploy@nodefactory.io \
+              \"cd /home/deploy/eatmybet && git pull && chmod a+x deploy.sh && env ENVIRONMENT=prod IMAGE_TAG=${CIRCLE_SHA1} DOCKER_USER=$DOCKER_HUB_USER DOCKER_PASSWORD=$DOCKER_HUB_PASS \
+              ./deploy.sh\" \
 workflows:
   version: 2
   build:
@@ -88,3 +101,10 @@ workflows:
             branches:
               only:
                 - master
+      - deploy-prod:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - production
