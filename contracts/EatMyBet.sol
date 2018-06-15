@@ -200,8 +200,8 @@ contract EatMyBet is Ownable, usingOraclize {
                         ").r"
                     )
                 );
-                //TODO: minus gas required for callback
-                eatMyBetProfit -= oraclize_getPrice("URL");
+                //oraclize price and callback price
+                eatMyBetProfit = eatMyBetProfit - oraclize_getPrice("URL") - 100000;
                 queryCallbacks[queryId] = OraclizeRequest(_betPoolIds[i], msg.sender);
             } else if(betPool.result == RESULT_UNDEFINED && matchResults[betPool.gameId] > 0) {
                 betPool.result = matchResults[betPool.gameId];
@@ -213,7 +213,7 @@ contract EatMyBet is Ownable, usingOraclize {
     }
 
     function __callback(bytes32 myid, string result) {
-        if (keccak256(env) != keccak256('development') && msg.sender != oraclize_cbAddress()) revert();
+        if (msg.sender != oraclize_cbAddress()) revert();
         OraclizeRequest memory request = queryCallbacks[myid];
         require (request.betPoolId > 0);
         BetPool storage betPool = betPools[request.betPoolId];
