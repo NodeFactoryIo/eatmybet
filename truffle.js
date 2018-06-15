@@ -22,6 +22,18 @@ module.exports = {
       gasPrice: 100000,
       network_id: 3,
     },
+    mainet: {
+      provider: function() {
+        return new HDWalletProvider(
+          process.env.ROPSTEN_MNEMONIC,
+          `https://mainet.infura.io/${process.env.INFURA_ACCESS_TOKEN}`,
+          0
+        );
+      },
+      gas: 4612388,
+      gasPrice: 100000,
+      network_id: 1,
+    },
   },
   mocha: {
     useColors: true,
