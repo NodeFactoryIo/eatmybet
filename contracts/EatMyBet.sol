@@ -120,7 +120,6 @@ contract EatMyBet is Ownable, usingOraclize {
         uint startTime = matchStartTimes[_gameId];
         require(startTime < (now - 2 hours) && startTime > 0);
         require(_bet > 0 && _bet <= 3);
-        require(_bet <= 2);
         require(_coef >= 100);
         address[] memory eaters;
         BetPool memory betPool = BetPool(_bet, RESULT_UNDEFINED, _coef, false, _gameId, msg.value, msg.sender, eaters);
