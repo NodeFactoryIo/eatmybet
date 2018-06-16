@@ -22,7 +22,7 @@ contract EatMyBet is Ownable, usingOraclize {
 
     string private env = "mainet";
 
-    event PoolCreated(uint betPoolId, address indexed creator, uint indexed gameId, uint8 indexed bet, uint16 coef);
+    event PoolCreated(uint betPoolId, address indexed creator, uint indexed gameId, uint amount, uint16 coef);
 
     event PoolFilled(uint indexed betPoolId);
 
