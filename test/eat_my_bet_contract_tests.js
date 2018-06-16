@@ -133,7 +133,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(result) {
           return assert.equal(
             web3.toWei(0.01, 'ether'),
-            result[4].toNumber()
+            result[5].toNumber()
           );
         }
       )
