@@ -118,7 +118,7 @@ contract EatMyBet is Ownable, usingOraclize {
     function makeBet(uint _gameId, uint8 _bet, uint16 _coef) public payable {
         require(msg.value >= MIN_POOL_SIZE);
         uint startTime = matchStartTimes[_gameId];
-        require(startTime < (now - 2 hours) && startTime > 0);
+        require(now < (startTime - 2 hours) && startTime > 0);
         require(_bet > 0 && _bet <= 3);
         require(_coef >= 100);
         address[] memory eaters;
@@ -144,8 +144,8 @@ contract EatMyBet is Ownable, usingOraclize {
         }
         require(totalAmount >= msg.value);
         for (uint j = 0; j < _betPoolIds.length; j++) {
-            require(_amounts[j] >= MIN_POOL_SIZE);
             BetPool storage betPool = betPools[_betPoolIds[j]];
+            require(_amounts[j] >= (MIN_POOL_SIZE / betPool.coef));
             uint betPoolId = _betPoolIds[j];
             uint remaining = getRemainingBetPoolAmount(betPoolId);
             require(
