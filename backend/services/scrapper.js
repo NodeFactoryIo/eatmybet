@@ -103,7 +103,7 @@ export default class Scrapper {
       request(
         {
           method: 'GET',
-          url: 'http://www.fifa.com/worldcup/matches/',
+          url: 'https://www.fifa.com/worldcup/matches/match/' + gameId,
         },
         function(err, response, body, callback) {
           if (err)
@@ -113,9 +113,12 @@ export default class Scrapper {
 
           let $ = cheerio.load(body);
 
-          let $fixture = $('.fi-mu[data-id=' + gameId + ']').eq(0);
+          let $fixture = $('.fi-mh[data-id=' + gameId + ']').eq(0);
 
-          ret.r = $fixture.attr('data-status');
+          if ($fixture.find('.period.full_time').hasClass('hidden')) {
+            resolve(ret);
+            return;
+          }
 
           let score = $fixture.find('.fi-s__scoreText').eq(0).text();
           let scoreArray = score.split('-');
