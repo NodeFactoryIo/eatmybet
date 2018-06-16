@@ -103,7 +103,9 @@ export default class Scrapper {
       request(
         {
           method: 'GET',
-          url: 'https://www.fifa.com/worldcup/matches/match/' + gameId,
+          // url: 'https://www.fifa.com/worldcup/matches/match/' + gameId,
+          url: 'https://api.fifa.com/api/v1/live/football/17/254645/275073/' + gameId,
+          json: true,
         },
         function(err, response, body, callback) {
           if (err)
@@ -111,14 +113,25 @@ export default class Scrapper {
 
           let ret = { r: -1, hg: 0, ag: 0 };
 
-          let $ = cheerio.load(body);
-
-          let $fixture = $('.fi-mh[data-id=' + gameId + ']').eq(0);
-
-          if ($fixture.find('.period.full_time').hasClass('hidden')) {
+          if (body.ResultType !== 1){
             resolve(ret);
             return;
           }
+
+          ret.hg = body.HomeTeam.Score;
+          ret.ag = body.AwayTeam.Score;
+
+          if (ret.hg > ret.ag)
+            ret.r = 1;
+          else if (ret.hg === ret.ag)
+            ret.r = 2;
+          else if (ret.hg < ret.ag)
+            ret.r = 3;
+
+          /*
+          let $ = cheerio.load(body);
+
+          let $fixture = $('.fi-mh[data-id=' + gameId + ']').eq(0);
 
           let score = $fixture.find('.fi-s__scoreText').eq(0).text();
           let scoreArray = score.split('-');
@@ -134,6 +147,7 @@ export default class Scrapper {
             else if (ret.hg < ret.ag)
               ret.r = 3;
           }
+          */
 
           resolve(ret);
         }
