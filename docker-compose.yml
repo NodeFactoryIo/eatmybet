@@ -16,7 +16,7 @@ services:
   ethereum:
     image: trufflesuite/ganache-cli:v6.1.0
     container_name: "${ETHEREUM_RPC_CONTAINER_NAME:-ethereum-rpc}"
-    command: ganache-cli -i ${ETHEREUM_NETWORK_ID:-666}
+    command: ganache-cli --mnemonic test -i ${ETHEREUM_NETWORK_ID:-666}
     ports:
           - "${ETHEREUM_NETWORK_EXPOSED_PORT:-8545}:8545"
 volumes:
