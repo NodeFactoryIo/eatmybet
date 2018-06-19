@@ -243,7 +243,7 @@ contract EatMyBet is Ownable, usingOraclize {
         }
     }
 
-    function getRemainingBetPoolAmount(uint _betPoolId) internal view returns (uint) {
+    function getRemainingBetPoolAmount(uint _betPoolId) public view returns (uint) {
         BetPool storage betPool = betPools[_betPoolId];
         uint remaining = betPool.poolSize;
         for (uint i = 0; i < betPool.eaters.length; i++) {
