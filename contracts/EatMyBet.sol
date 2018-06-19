@@ -22,7 +22,7 @@ contract EatMyBet is Ownable, usingOraclize {
 
     string private env = "mainet";
 
-    event PoolCreated(uint betPoolId, address indexed creator, uint indexed gameId, uint amount, uint16 coef);
+    event PoolCreated(uint betPoolId, address indexed creator, uint indexed gameId, uint8 bet, uint amount, uint16 coef);
 
     event PoolFilled(uint indexed betPoolId);
 
@@ -124,7 +124,7 @@ contract EatMyBet is Ownable, usingOraclize {
         address[] memory eaters;
         BetPool memory betPool = BetPool(_bet, RESULT_UNDEFINED, _coef, false, _gameId, msg.value, msg.sender, eaters);
         uint betPoolId = betPools.push(betPool) - 1;
-        emit PoolCreated(betPoolId, msg.sender, _gameId, _bet, _coef);
+        emit PoolCreated(betPoolId, msg.sender, _gameId, _bet, msg.value, _coef);
     }
 
     function cancelBet(uint _betPoolId) public onlyBetOwner(_betPoolId) {
