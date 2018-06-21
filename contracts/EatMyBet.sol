@@ -71,7 +71,7 @@ contract EatMyBet is Ownable, usingOraclize {
 
     BetPool[] public betPools;
 
-    constructor(string _env) public payable {
+    function EatMyBet(string _env) public payable {
         require(msg.value > 0.01 ether);
         env = _env;
         eatMyBetProfit = msg.value;
@@ -172,6 +172,10 @@ contract EatMyBet is Ownable, usingOraclize {
         return amounts;
     }
 
+    function getBetPoolTakenBets(uint _betPoolId, address _eater) public view returns (uint) {
+        return betPools[_betPoolId].eatenAmount[_eater];
+    }
+
     function getBetPoolTakenAmount(uint _betPoolId) public view returns (uint) {
         uint[] memory amounts = getBetPoolTakenBets(_betPoolId);
         uint total = 0;
@@ -202,7 +206,7 @@ contract EatMyBet is Ownable, usingOraclize {
                 //oraclize price and callback price
                 eatMyBetProfit = eatMyBetProfit - oraclize_getPrice("URL") - 100000;
                 queryCallbacks[queryId] = OraclizeRequest(_betPoolIds[i], msg.sender);
-            } else if(betPool.result == RESULT_UNDEFINED && matchResults[betPool.gameId] > 0) {
+            } else if (betPool.result == RESULT_UNDEFINED && matchResults[betPool.gameId] > 0) {
                 betPool.result = matchResults[betPool.gameId];
                 payoutWinner(_betPoolIds[i], msg.sender);
             } else {
@@ -214,7 +218,7 @@ contract EatMyBet is Ownable, usingOraclize {
     function __callback(bytes32 myid, string result) {
         if (msg.sender != oraclize_cbAddress()) revert();
         OraclizeRequest memory request = queryCallbacks[myid];
-        require (request.betPoolId > 0);
+        require(request.betPoolId > 0);
         BetPool storage betPool = betPools[request.betPoolId];
         uint8 gameResult = uint8(parseInt(result));
         matchResults[betPool.gameId] = gameResult;
