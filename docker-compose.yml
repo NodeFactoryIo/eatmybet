@@ -19,6 +19,8 @@ services:
     command: ganache-cli --mnemonic test -i ${ETHEREUM_NETWORK_ID:-666}
     ports:
           - "${ETHEREUM_NETWORK_EXPOSED_PORT:-8545}:8545"
+    logging:
+      driver: ${ETHEREUM_RPC_LOG:-json-file}
 volumes:
   node_modules:
   contracts:

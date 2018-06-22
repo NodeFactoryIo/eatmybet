@@ -5,7 +5,7 @@ export function test() {
 }
 
 export function dev() {
-  run('docker-compose up');
+  run('docker-compose up --remove-orphans');
 }
 
 help(test, 'Runs nodejs tests');
