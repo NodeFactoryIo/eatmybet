@@ -12,7 +12,7 @@ services:
     ports:
           - "${BACKEND_PORT:-3000}:3000"
     depends_on:
-          - "ethereum"
+          - "ethereum-bridge"
   ethereum:
     image: trufflesuite/ganache-cli:v6.1.0
     container_name: "${ETHEREUM_RPC_CONTAINER_NAME:-ethereum-rpc}"
@@ -21,6 +21,13 @@ services:
           - "${ETHEREUM_NETWORK_EXPOSED_PORT:-8545}:8545"
     logging:
       driver: ${ETHEREUM_RPC_LOG:-json-file}
+  ethereum-bridge:
+    image: nodefactory/ethereum-bridge:latest
+    restart: on-failure
+    container_name: "ethereum-bridge"
+    command: --url http://ethereum:8545 --dev -a 9
+    depends_on:
+      - "ethereum"
 volumes:
   node_modules:
   contracts:
