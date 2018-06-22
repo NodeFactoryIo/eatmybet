@@ -30,6 +30,10 @@ contract EatMyBet is Ownable, usingOraclize {
 
     event BetTaken(uint betPoolId, address indexed eater, uint indexed gameId, uint amount, uint16 coef);
 
+    event OraclizeCalledEvent(bytes32 requestId);
+
+    event LogEvent(string message);
+
     struct BetPool {
 
         uint8 bet;
@@ -71,10 +75,14 @@ contract EatMyBet is Ownable, usingOraclize {
 
     BetPool[] public betPools;
 
-    function EatMyBet(string _env) public payable {
+    constructor(string _env) public payable {
         require(msg.value > 0.01 ether);
+        if(keccak256(_env) == keccak256("development")) {
+            OAR = OraclizeAddrResolverI(0x6f485C8BF6fc43eA212E93BBF8ce046C7f1cb475);
+        }
         env = _env;
         eatMyBetProfit = msg.value;
+        oraclize_setProof(proofType_TLSNotary | proofStorage_IPFS);
     }
 
     modifier onlyBetOwner(uint _betPoolId) {
@@ -205,6 +213,7 @@ contract EatMyBet is Ownable, usingOraclize {
                 );
                 //oraclize price and callback price
                 eatMyBetProfit = eatMyBetProfit - oraclize_getPrice("URL") - 100000;
+                emit OraclizeCalledEvent(queryId);
                 queryCallbacks[queryId] = OraclizeRequest(_betPoolIds[i], msg.sender);
             } else if (betPool.result == RESULT_UNDEFINED && matchResults[betPool.gameId] > 0) {
                 betPool.result = matchResults[betPool.gameId];
@@ -215,8 +224,9 @@ contract EatMyBet is Ownable, usingOraclize {
         }
     }
 
-    function __callback(bytes32 myid, string result) {
-        if (msg.sender != oraclize_cbAddress()) revert();
+    function __callback(bytes32 myid, string result) public {
+        if (msg.sender != oraclize_cbAddress() && keccak256(env) != keccak256('development')) revert();
+        emit LogEvent('callback called');
         OraclizeRequest memory request = queryCallbacks[myid];
         require(request.betPoolId > 0);
         BetPool storage betPool = betPools[request.betPoolId];

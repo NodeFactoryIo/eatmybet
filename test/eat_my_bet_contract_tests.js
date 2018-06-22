@@ -282,4 +282,63 @@ contract('eat_my_bet_contract_test', function(accounts) {
       );
   });
 
+  it('should take reward', function() {
+    let betPoolId, balance;
+    EatMyBetContract.deployed()
+      .then(
+        function(_contract) {
+          contract = _contract;
+          return contract.makeBet(
+            125,
+            1,
+            200,
+            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
+          );
+        }
+      )
+      .then(
+        function(result) {
+          betPoolId = result.logs[0].args.betPoolId.toNumber();
+          return contract.takeBets(
+            [betPoolId],
+            [web3.toWei(0.025, 'ether')],
+            {from: accounts[1], value: web3.toWei(0.025, 'ether')}
+          );
+        }
+      )
+      .then(
+        function() {
+          return contract.takeBets(
+            [betPoolId],
+            [web3.toWei(0.025, 'ether')],
+            {from: accounts[2], value: web3.toWei(0.025, 'ether')}
+          );
+        }
+      )
+      .then(
+        function(result) {
+          assert.equal(result.logs[0].event, 'BetTaken');
+          assert.equal(result.logs[1].event, 'PoolFilled');
+          balance = web3.eth.getBalance(accounts[1]);
+          console.log('original', web3.fromWei(balance.toNumber(), 'ether'));
+          return contract.claimBetRewards([betPoolId], {from: accounts[1]});
+        }
+      )
+      .then(function(result) {
+        assert.equal(result.logs[0].event, 'OraclizeCalledEvent');
+        return contract.__callback(result.logs[0].args.requestId, '2', {from: accounts[0]});
+      })
+      .then(function(result) {
+        console.log(result.logs);
+        console.log('new balance', web3.fromWei(web3.eth.getBalance(accounts[1]), 'ether'));
+        return assert.equal(result.logs[0].event, 'LogEvent');
+      })
+      .catch(
+        function(error) {
+          console.log('error:', error);
+          return assert.fail(0, 1);
+        }
+      );
+  });
+
 });
