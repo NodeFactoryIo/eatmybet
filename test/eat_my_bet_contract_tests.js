@@ -284,6 +284,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
 
   it('should take reward', function() {
     let betPoolId, balance;
+    EatMyBetContract.defaults({from: accounts[0]});
+    balance = web3.eth.getBalance(accounts[5]);
     EatMyBetContract.deployed()
       .then(
         function(_contract) {
@@ -292,7 +294,7 @@ contract('eat_my_bet_contract_test', function(accounts) {
             125,
             1,
             200,
-            {from: accounts[0], value: web3.toWei(0.1, 'ether')}
+            {from: accounts[3], value: web3.toWei(2, 'ether')}
           );
         }
       )
@@ -301,8 +303,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
           betPoolId = result.logs[0].args.betPoolId.toNumber();
           return contract.takeBets(
             [betPoolId],
-            [web3.toWei(0.025, 'ether')],
-            {from: accounts[1], value: web3.toWei(0.025, 'ether')}
+            [web3.toWei(0.5, 'ether')],
+            {from: accounts[5], value: web3.toWei(0.5, 'ether')}
           );
         }
       )
@@ -310,8 +312,8 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function() {
           return contract.takeBets(
             [betPoolId],
-            [web3.toWei(0.025, 'ether')],
-            {from: accounts[2], value: web3.toWei(0.025, 'ether')}
+            [web3.toWei(0.5, 'ether')],
+            {from: accounts[2], value: web3.toWei(0.5, 'ether')}
           );
         }
       )
@@ -319,18 +321,17 @@ contract('eat_my_bet_contract_test', function(accounts) {
         function(result) {
           assert.equal(result.logs[0].event, 'BetTaken');
           assert.equal(result.logs[1].event, 'PoolFilled');
-          balance = web3.eth.getBalance(accounts[1]);
-          console.log('original', web3.fromWei(balance.toNumber(), 'ether'));
-          return contract.claimBetRewards([betPoolId], {from: accounts[1]});
+          return contract.claimBetRewards([betPoolId], {from: accounts[5]});
         }
       )
       .then(function(result) {
         assert.equal(result.logs[0].event, 'OraclizeCalledEvent');
-        return contract.__callback(result.logs[0].args.requestId, '2', {from: accounts[0]});
+        return contract.__callback(result.logs[0].args.requestId,
+          '2',
+          web3.fromAscii('abd'), {from: accounts[2]});
       })
       .then(function(result) {
-        console.log(result.logs);
-        console.log('new balance', web3.fromWei(web3.eth.getBalance(accounts[1]), 'ether'));
+        assert.isAbove(web3.eth.getBalance(accounts[5]).toNumber(), balance);
         return assert.equal(result.logs[0].event, 'LogEvent');
       })
       .catch(

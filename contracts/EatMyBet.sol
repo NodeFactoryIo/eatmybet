@@ -82,7 +82,6 @@ contract EatMyBet is Ownable, usingOraclize {
         }
         env = _env;
         eatMyBetProfit = msg.value;
-        oraclize_setProof(proofType_TLSNotary | proofStorage_IPFS);
     }
 
     modifier onlyBetOwner(uint _betPoolId) {
@@ -209,10 +208,11 @@ contract EatMyBet is Ownable, usingOraclize {
                         "json(https://api.eatmybet.com/fixtures-01/get-result?gameId=",
                         uint2str(betPool.gameId),
                         ").r"
-                    )
+                    ),
+                    50000
                 );
                 //oraclize price and callback price
-                eatMyBetProfit = eatMyBetProfit - oraclize_getPrice("URL") - 100000;
+                eatMyBetProfit = eatMyBetProfit - oraclize_getPrice("URL") - 50000;
                 emit OraclizeCalledEvent(queryId);
                 queryCallbacks[queryId] = OraclizeRequest(_betPoolIds[i], msg.sender);
             } else if (betPool.result == RESULT_UNDEFINED && matchResults[betPool.gameId] > 0) {
@@ -224,9 +224,22 @@ contract EatMyBet is Ownable, usingOraclize {
         }
     }
 
+    function __callback(bytes32 myid, string result, bytes proof) public {
+        //require(msg.sender == oraclize_cbAddress() || keccak256(env) == keccak256("development"));
+        OraclizeRequest memory request = queryCallbacks[myid];
+        require(request.betPoolId > 0);
+        BetPool storage betPool = betPools[request.betPoolId];
+        uint8 gameResult = uint8(parseInt(result));
+        matchResults[betPool.gameId] = gameResult;
+        betPool.result = gameResult;
+        emit LogEvent("test");
+        payoutWinner(request.betPoolId, request.caller);
+        delete queryCallbacks[myid];
+        emit LogEvent(env);
+    }
+
     function __callback(bytes32 myid, string result) public {
-        if (msg.sender != oraclize_cbAddress() && keccak256(env) != keccak256('development')) revert();
-        emit LogEvent('callback called');
+        require(msg.sender == oraclize_cbAddress() || keccak256(env) == keccak256("development"));
         OraclizeRequest memory request = queryCallbacks[myid];
         require(request.betPoolId > 0);
         BetPool storage betPool = betPools[request.betPoolId];
@@ -235,25 +248,27 @@ contract EatMyBet is Ownable, usingOraclize {
         betPool.result = gameResult;
         payoutWinner(request.betPoolId, request.caller);
         delete queryCallbacks[myid];
+        emit LogEvent(env);
     }
 
-    function payoutWinner(uint _betPoolId, address caller) internal {
+    function payoutWinner(uint _betPoolId, address _caller) internal {
         BetPool storage betPool = betPools[_betPoolId];
         uint taken = 0;
         uint profit = 0;
-        if (caller == betPool.owner && betPool.result == betPool.bet && betPool.paid == false) {
+        if (_caller == betPool.owner && betPool.result == betPool.bet && betPool.paid == false) {
             taken = getBetPoolTakenAmount(_betPoolId);
             require(taken > 0);
             profit = taken * (feePercentage / 100);
             betPool.paid = true;
             betPool.owner.transfer(taken - profit);
         }
-        if (caller != betPool.owner && betPool.result != betPool.bet) {
-            taken = betPool.eatenAmount[caller] * (betPool.coef / 100);
+        if (_caller != betPool.owner && betPool.result != betPool.bet) {
+            emit LogEvent("paying out");
+            taken = betPool.eatenAmount[_caller] * (betPool.coef / 100);
             require(taken > 0);
             profit = taken * (feePercentage / 100);
-            delete betPool.eatenAmount[caller];
-            caller.transfer(taken - profit);
+            delete betPool.eatenAmount[_caller];
+            _caller.transfer(taken - profit);
         }
     }
 
@@ -268,4 +283,3 @@ contract EatMyBet is Ownable, usingOraclize {
 
 
 }
-

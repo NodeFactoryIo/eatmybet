@@ -23,7 +23,7 @@ services:
       driver: ${ETHEREUM_RPC_LOG:-json-file}
   ethereum-bridge:
     image: nodefactory/ethereum-bridge:latest
-    restart: on-failure
+    restart: always
     container_name: "ethereum-bridge"
     command: --url http://ethereum:8545 --dev -a 9
     depends_on:
