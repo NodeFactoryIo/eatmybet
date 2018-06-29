@@ -224,6 +224,10 @@ contract EatMyBet is Ownable, usingOraclize {
         }
     }
 
+    function __callback(bytes32 myid, string result) public {
+        __callback(myid, result, new bytes(0));
+    }
+
     function __callback(bytes32 myid, string result, bytes proof) public {
         //require(msg.sender == oraclize_cbAddress() || keccak256(env) == keccak256("development"));
         OraclizeRequest memory request = queryCallbacks[myid];
@@ -233,19 +237,6 @@ contract EatMyBet is Ownable, usingOraclize {
         matchResults[betPool.gameId] = gameResult;
         betPool.result = gameResult;
         emit LogEvent("test");
-        payoutWinner(request.betPoolId, request.caller);
-        delete queryCallbacks[myid];
-        emit LogEvent(env);
-    }
-
-    function __callback(bytes32 myid, string result) public {
-        require(msg.sender == oraclize_cbAddress() || keccak256(env) == keccak256("development"));
-        OraclizeRequest memory request = queryCallbacks[myid];
-        require(request.betPoolId > 0);
-        BetPool storage betPool = betPools[request.betPoolId];
-        uint8 gameResult = uint8(parseInt(result));
-        matchResults[betPool.gameId] = gameResult;
-        betPool.result = gameResult;
         payoutWinner(request.betPoolId, request.caller);
         delete queryCallbacks[myid];
         emit LogEvent(env);

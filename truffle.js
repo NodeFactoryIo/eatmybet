@@ -19,7 +19,7 @@ module.exports = {
         );
       },
       gas: 4612388,
-      gasPrice: 100000,
+      gasPrice: 100000000,
       network_id: 3,
     },
     mainet: {
@@ -31,7 +31,7 @@ module.exports = {
         );
       },
       gas: 4612388,
-      gasPrice: 100000,
+      gasPrice: 10000000,
       network_id: 1,
     },
   },
